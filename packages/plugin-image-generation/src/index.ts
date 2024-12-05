@@ -62,7 +62,7 @@ export async function saveHeuristImage(
     return filepath;
 }
 
-const imageGeneration: Action = {
+export const imageGeneration: Action = {
     name: "GENERATE_IMAGE",
     similes: [
         "IMAGE_GENERATION",
@@ -157,7 +157,9 @@ const imageGeneration: Action = {
 
                 // Save the image and get filepath
                 const filename = `generated_${Date.now()}_${i}`;
-
+                if (image.startsWith("http")) {
+                    elizaLogger.log("Generating image url:", image);
+                }
                 // Choose save function based on image data format
                 const filepath = image.startsWith("http")
                     ? await saveHeuristImage(image, filename)
@@ -284,6 +286,19 @@ const imageGeneration: Action = {
                 user: "{{agentName}}",
                 content: {
                     text: "Here's an image of a cat with a hat",
+                    action: "GENERATE_IMAGE",
+                },
+            },
+        ],
+        [
+            {
+                user: "{{user1}}",
+                content: { text: "Paint an image of Guangzhou Tower" },
+            },
+            {
+                user: "{{agentName}}",
+                content: {
+                    text: "Here's an image of Guangzhou Tower",
                     action: "GENERATE_IMAGE",
                 },
             },

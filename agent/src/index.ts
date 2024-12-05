@@ -36,6 +36,7 @@ import { imageGenerationPlugin } from "@ai16z/plugin-image-generation";
 import { evmPlugin } from "@ai16z/plugin-evm";
 import { createNodePlugin } from "@ai16z/plugin-node";
 import { solanaPlugin } from "@ai16z/plugin-solana";
+import { nftCollectionGenerationPlugin } from "@ai16z/plugin-nft-collection-generation";
 import { teePlugin } from "@ai16z/plugin-tee";
 import Database from "better-sqlite3";
 import fs from "fs";
@@ -367,10 +368,16 @@ export function createAgent(
                 ? confluxPlugin
                 : null,
             nodePlugin,
+            // getSecret(character, "SOLANA_PUBLIC_KEY") ||
+            // (getSecret(character, "WALLET_PUBLIC_KEY") &&
+            //     !getSecret(character, "WALLET_PUBLIC_KEY")?.startsWith("0x"))
+            //     ? solanaPlugin
+            //     : null,
+            true ||
             getSecret(character, "SOLANA_PUBLIC_KEY") ||
             (getSecret(character, "WALLET_PUBLIC_KEY") &&
                 !getSecret(character, "WALLET_PUBLIC_KEY")?.startsWith("0x"))
-                ? solanaPlugin
+                ? nftCollectionGenerationPlugin
                 : null,
             getSecret(character, "EVM_PRIVATE_KEY") ||
             (getSecret(character, "WALLET_PUBLIC_KEY") &&
@@ -507,6 +514,7 @@ async function handleUserInput(input, agentId) {
 
     try {
         const serverPort = parseInt(settings.SERVER_PORT || "3000");
+        elizaLogger.log(`${"User"}: ${input}`);
 
         const response = await fetch(
             `http://localhost:${serverPort}/${agentId}/message`,

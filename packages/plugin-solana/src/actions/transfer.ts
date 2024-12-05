@@ -77,23 +77,21 @@ export default {
     validate: async (runtime: IAgentRuntime, message: Memory) => {
         console.log("Validating transfer from user:", message.userId);
         //add custom validate logic here
-        /*
             const adminIds = runtime.getSetting("ADMIN_USER_IDS")?.split(",") || [];
             //console.log("Admin IDs from settings:", adminIds);
 
             const isAdmin = adminIds.includes(message.userId);
 
             if (isAdmin) {
-                //console.log(`Authorized transfer from user: ${message.userId}`);
+                console.log(`Authorized transfer from user: ${message.userId}`);
                 return true;
             }
             else
             {
-                //console.log(`Unauthorized transfer attempt from user: ${message.userId}`);
+                console.log(`Unauthorized transfer attempt from user: ${message.userId}`);
                 return false;
             }
-            */
-        return false;
+        // return false;
     },
     description: "Transfer tokens from the agent's wallet to another address",
     handler: async (

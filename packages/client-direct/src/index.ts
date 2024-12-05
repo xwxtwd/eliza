@@ -208,6 +208,9 @@ export class DirectClient {
                     modelClass: ModelClass.SMALL,
                 });
 
+                elizaLogger.log('context', context);
+                elizaLogger.log('response', response);
+
                 // save response to memory
                 const responseMessage = {
                     ...userMessage,
@@ -232,8 +235,10 @@ export class DirectClient {
                     memory,
                     [responseMessage],
                     state,
-                    async (newMessages) => {
+                    async (newMessages, files) => {
                         message = newMessages;
+                        elizaLogger.log('processActions', newMessages);
+                        elizaLogger.log('processActions files', files);
                         return [memory];
                     }
                 );

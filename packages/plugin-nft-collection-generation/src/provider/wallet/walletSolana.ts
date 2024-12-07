@@ -107,7 +107,11 @@ export class WalletSolana {
         //     this.umi,
         //     collectionMint.publicKey
         // );
-        return collectionMint.publicKey;
+        const address = collectionMint.publicKey
+        return {
+            link: getExplorerLink("address", address, "devnet"),
+            address
+        };
     }
 
     async mintNFT({
@@ -173,7 +177,11 @@ export class WalletSolana {
         //         "devnet"
         //     )}`
         // );
-        return mint.publicKey;
+        const address = mint.publicKey
+        return {
+            link: getExplorerLink("address", address, "devnet"),
+            address
+        };
     }
 
     async verifyNft({

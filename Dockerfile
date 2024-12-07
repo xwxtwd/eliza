@@ -25,8 +25,7 @@ COPY characters ./characters
 
 # Install dependencies and build the project
 RUN pnpm install \
-    && pnpm build \
-    && pnpm prune --prod
+    && pnpm build
 
 # Create a new stage for the final image
 FROM node:23.3.0-slim
@@ -52,4 +51,4 @@ COPY --from=builder /app/scripts ./scripts
 COPY --from=builder /app/characters ./characters
 
 # Set the command to run the application
-CMD ["pnpm", "start", "--non-interactive"]
+CMD ["pnpm", "start", "--non-interactive", "--characters='./characters/elizaos.character.json'", "--non-interactive"]

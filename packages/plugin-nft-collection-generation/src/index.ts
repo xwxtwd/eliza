@@ -12,6 +12,7 @@ import {
     ServiceType,
     State,
 } from "@ai16z/eliza";
+
 import { AwsS3Service } from "@ai16z/plugin-node";
 import { imageGeneration } from "@ai16z/plugin-image-generation";
 
@@ -19,6 +20,8 @@ import fs from "fs";
 import path from "path";
 import WalletSolana from "./provider/wallet/walletSolana.ts";
 import { Connection, clusterApiUrl, PublicKey } from "@solana/web3.js";
+
+export * from "./provider/wallet/walletSolana.ts";
 
 const nftTemplate = `
 # Areas of Expertise
@@ -84,6 +87,12 @@ export async function saveHeuristImage(
     fs.writeFileSync(filepath, imageBuffer);
 
     return filepath;
+}
+
+export async function sleep(ms: number = 3000) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
 }
 
 const nftCollectionGeneration: Action = {
@@ -168,7 +177,7 @@ const nftCollectionGeneration: Action = {
                 const adminPrivateKey = process.env.SOLANA_ADMIN_PRIVATE_KEY;
                 const collectionInfo = {
                     name: `${runtime.character.name}`,
-                    symbol: `${runtime.character.name.toUpperCase()}`,
+                    symbol: `${runtime.character.name.toUpperCase()[0]}`,
                     adminPublicKey,
                     fee: 0,
                     uri: "",
@@ -179,7 +188,9 @@ const nftCollectionGeneration: Action = {
                     image: logoPath.url,
                 });
                 collectionInfo.uri = jsonFilePath.url;
-                const connection = new Connection(clusterApiUrl("devnet"));
+                const connection = new Connection(clusterApiUrl("devnet"), {
+                    commitment: "finalized",
+                });
 
                 const wallet = new WalletSolana(
                     connection,
@@ -187,13 +198,14 @@ const nftCollectionGeneration: Action = {
                     privateKey
                 );
 
-                const collectionAddress = await wallet.createCollection({
+                const collectionAddressRes = await wallet.createCollection({
                     ...collectionInfo,
                 });
 
-                elizaLogger.log("Collection ID:", collectionAddress);
+                elizaLogger.log("Collection Address:", collectionAddressRes);
 
                 elizaLogger.log("NFT Prompt context:", context);
+                //const res = await TwitterManager.fetchProfile('')
                 let nftPrompt = await generateText({
                     runtime,
                     context,
@@ -203,6 +215,7 @@ const nftCollectionGeneration: Action = {
                 nftPrompt += "The image should only feature one person";
                 elizaLogger.log("NFT Prompt:", nftPrompt);
                 const imageGenerationAction = imageGeneration;
+                const nftAddressList = [];
                 imageGenerationAction.handler(
                     runtime,
                     {
@@ -219,11 +232,11 @@ const nftCollectionGeneration: Action = {
                         if (files?.length > 0) {
                             for (let i = 0; i < files.length; i++) {
                                 const file = files[i];
-                                const res = await awsS3Service.uploadFile(
+                                const nftImage = await awsS3Service.uploadFile(
                                     file.attachment,
                                     false
                                 );
-                                const nftIndex = 10;
+                                const nftIndex = 1;
                                 const nftInfo = {
                                     name: `${collectionInfo.name} #${nftIndex}`,
                                     description: `${collectionInfo.name} #${nftIndex}`,
@@ -231,33 +244,63 @@ const nftCollectionGeneration: Action = {
                                 const jsonFilePath =
                                     await awsS3Service.uploadJson({
                                         ...nftInfo,
-                                        image: res.url,
+                                        image: nftImage.url,
                                     });
-                                elizaLogger.log("Image S3 url:", res);
-                                const nftAddress = await wallet.mintNFT({
+                                elizaLogger.log("Image S3 url:", nftImage);
+                                const nftAddressRes = await wallet.mintNFT({
                                     name: nftInfo.name,
                                     uri: jsonFilePath.url,
-                                    collectionAddress,
+                                    collectionAddress:
+                                        collectionAddressRes.address,
                                     adminPublicKey:
                                         collectionInfo.adminPublicKey,
                                     fee: collectionInfo.fee,
                                 });
-                                elizaLogger.log("NFT ID:", nftAddress);
-
-                                const adminWallet = new WalletSolana(
-                                    connection,
-                                    new PublicKey(adminPublicKey),
-                                    adminPrivateKey
+                                elizaLogger.log(
+                                    "NFT ID:",
+                                    nftAddressRes.address
                                 );
-                                adminWallet.verifyNft({
-                                    collectionAddress,
-                                    nftAddress,
+
+
+                                nftAddressList.push({
+                                    ...nftAddressRes,
+                                    imageUrl: nftImage.url,
                                 });
+
                             }
                         }
+
+                        callback({
+                            text: `Congratulations to you! 🎉🎉🎉 \nCollection : ${collectionAddressRes.link}\n NFT: ${nftAddressList.map((item) => item.link).join(", ")}`, //caption.description,
+                            attachments: [
+                            ],
+                        });
+
+                        await sleep(15000);
+                        const adminWallet = new WalletSolana(
+                            connection,
+                            new PublicKey(adminPublicKey),
+                            adminPrivateKey
+                        );
+
+                        for (let j = 0; j < nftAddressList.length; j++) {
+                            const nft = nftAddressList[j];
+                            try {
+                                adminWallet.verifyNft({
+                                    collectionAddress:
+                                    collectionAddressRes.address,
+                                    nftAddress: nft.address,
+                                });
+                            } catch (e: any) {
+                                console.log(e);
+                            }
+
+                        }
+
                         return [];
                     }
                 );
+                return [];
             }
         } else {
             elizaLogger.error(

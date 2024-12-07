@@ -33,6 +33,34 @@
 -   🎮 Video Game NPCs
 -   🧠 Trading
 
+## Creating Solana collection and NFT parameters.
+```
+# .env file
+
+# Solana 
+SOLANA_PRIVATE_KEY= # Create collection or mint NFT.
+SOLANA_PUBLIC_KEY= # Create collection or mint NFT.
+
+SOLANA_ADMIN_PRIVATE_KEY= # For NFT verification and set collection/nft Update authority.
+SOLANA_ADMIN_PUBLIC_KEY= # For NFT verification and set collection/nft Update authority.
+
+# Telegram
+TELEGRAM_BOT_TOKEN=
+
+```
+```
+.character.json file
+
+"nft": {
+  "prompt": "The background is a mysterious, dreamy tone, with a deep color palette.", // NFT prompt
+  "supply": 1, // Collection supply
+  "mintPrice": 0.1 // NFT mint price
+  "ai16zDao": 3 // Send 3/5/10% to ai16zDao 国库.
+}
+
+```
+
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -79,6 +107,7 @@ cp .env.example .env
 ```
 
 Note: .env is optional. If your planning to run multiple distinct agents, you can pass secrets through the character JSON
+
 
 ### Automatically Start Eliza
 

@@ -379,26 +379,26 @@ export function createAgent(
                 !getSecret(character, "WALLET_PUBLIC_KEY")?.startsWith("0x"))
                 ? nftCollectionGenerationPlugin
                 : null,
-            getSecret(character, "EVM_PRIVATE_KEY") ||
-            (getSecret(character, "WALLET_PUBLIC_KEY") &&
-                !getSecret(character, "WALLET_PUBLIC_KEY")?.startsWith("0x"))
-                ? evmPlugin
-                : null,
-            getSecret(character, "ZEROG_PRIVATE_KEY") ? zgPlugin : null,
-            getSecret(character, "COINBASE_COMMERCE_KEY")
-                ? coinbaseCommercePlugin
-                : null,
+            // getSecret(character, "EVM_PRIVATE_KEY") ||
+            // (getSecret(character, "WALLET_PUBLIC_KEY") &&
+            //     !getSecret(character, "WALLET_PUBLIC_KEY")?.startsWith("0x"))
+            //     ? evmPlugin
+            //     : null,
+            // getSecret(character, "ZEROG_PRIVATE_KEY") ? zgPlugin : null,
+            // getSecret(character, "COINBASE_COMMERCE_KEY")
+            //     ? coinbaseCommercePlugin
+            //     : null,
             getSecret(character, "FAL_API_KEY") ||
             getSecret(character, "OPENAI_API_KEY") ||
             getSecret(character, "HEURIST_API_KEY")
                 ? imageGenerationPlugin
                 : null,
-            ...(getSecret(character, "COINBASE_API_KEY") &&
-            getSecret(character, "COINBASE_PRIVATE_KEY")
-                ? [coinbaseMassPaymentsPlugin, tradePlugin]
-                : []),
-            getSecret(character, "WALLET_SECRET_SALT") ? teePlugin : null,
-            getSecret(character, "ALCHEMY_API_KEY") ? goatPlugin : null,
+            // ...(getSecret(character, "COINBASE_API_KEY") &&
+            // getSecret(character, "COINBASE_PRIVATE_KEY")
+            //     ? [coinbaseMassPaymentsPlugin, tradePlugin]
+            //     : []),
+            // getSecret(character, "WALLET_SECRET_SALT") ? teePlugin : null,
+            // getSecret(character, "ALCHEMY_API_KEY") ? goatPlugin : null,
         ].filter(Boolean),
         providers: [],
         actions: [],
@@ -462,6 +462,7 @@ async function startAgent(character: Character, directClient) {
 }
 
 const startAgents = async () => {
+    elizaLogger.log('OPENAI_API_KEY', process.env.OPENAI_API_KEY);
     const directClient = await DirectClientInterface.start();
     const args = parseArguments();
 

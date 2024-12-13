@@ -431,9 +431,11 @@ export async function createAgent(
                 ? confluxPlugin
                 : null,
             nodePlugin,
-            getSecret(character, "SOLANA_PUBLIC_KEY") ||
+            (getSecret(character, "SOLANA_PUBLIC_KEY") ||
             (getSecret(character, "WALLET_PUBLIC_KEY") &&
-                !getSecret(character, "WALLET_PUBLIC_KEY")?.startsWith("0x"))
+                !getSecret(character, "WALLET_PUBLIC_KEY")?.startsWith("0x"))) &&
+            getSecret(character, "SOLANA_PRIVATE_KEY") &&
+            getSecret(character, "BIRDEYE_API_KEY")
                 ? solanaPlugin
                 : null,
             getSecret(character, "EVM_PRIVATE_KEY") ||
